@@ -13,7 +13,7 @@ user_agents = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
 ]
 
-LOG_FILE = "./log_generator/logs/web_server_logs.txt"
+LOG_FILE = "/app/logs/web_server_logs.txt"
 LOG_FILE_SIZE_LIMIT = 5 * 1024 * 1024  # 5 MB
 
 def generate_log():
@@ -28,7 +28,7 @@ def generate_log():
 
 def rotate_log_file():
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    os.rename(LOG_FILE, f"./log_generator/logs/web_server_logs_{timestamp}.txt")
+    os.rename(LOG_FILE, f"/app/log_generator/logs/web_server_logs_{timestamp}.txt")
 
 if __name__ == "__main__":
     while True:
