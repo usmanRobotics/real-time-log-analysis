@@ -1,0 +1,19 @@
+version: '3'
+services:
+  log_generator:
+    build: ./log_generator
+    volumes:
+      - ./log_generator/logs:/app/logs
+  spark_application:
+    build: ./spark_application
+    volumes:
+      - ./log_generator/logs:/app/logs
+    depends_on:
+      - log_generator
+  redis:
+    image: redis:latest
+    container_name: redis
+  celery_worker:
+    build: ./celery_worker
+    depends_on:
+      - redis

@@ -1,3 +1,4 @@
+from prometheus_client import start_http_server, Counter, Gauge
 import time
 import random
 import os
@@ -12,8 +13,13 @@ user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
 ]
+
 LOG_FILE = "/app/logs/web_server_logs.csv"
 LOG_FILE_SIZE_LIMIT = 5 * 1024 * 1024  # 5 MB
+
+# Prometheus metrics
+log_counter = Counter('log_generator_total', 'Total number of logs generated')
+log_size_gauge = Gauge('log_file_size_bytes', 'Current size of the log file in bytes')
 
 def generate_log():
     ip = random.choice(ips)
@@ -27,9 +33,12 @@ def generate_log():
 
 def rotate_log_file():
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    os.rename(LOG_FILE, f"/app/log_generator/logs/web_server_logs_{timestamp}.csv")
+    os.rename(LOG_FILE, f"/app/logs/web_server_logs_{timestamp}.csv")
 
 if __name__ == "__main__":
+    # Start the Prometheus metrics server
+    start_http_server(8000)
+
     while True:
         log = generate_log()
         print(log.strip())  # Print to console for testing
@@ -37,4 +46,6 @@ if __name__ == "__main__":
             rotate_log_file()
         with open(LOG_FILE, "a") as f:
             f.write(log)
+        log_counter.inc()
+        log_size_gauge.set(os.path.getsize(LOG_FILE))
         time.sleep(0.5)  # Simulate a delay between log entries
